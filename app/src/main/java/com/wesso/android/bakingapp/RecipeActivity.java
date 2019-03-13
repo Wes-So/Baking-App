@@ -19,7 +19,7 @@ public class RecipeActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        int recipeId = (Integer) getIntent().getIntExtra(EXTRA_RECIPE_ID,0);
+        int recipeId = getIntent().getIntExtra(EXTRA_RECIPE_ID,0);
         return RecipeFragment.newInstance(recipeId);
     }
 

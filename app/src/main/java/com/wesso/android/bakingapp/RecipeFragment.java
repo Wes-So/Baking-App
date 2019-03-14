@@ -1,5 +1,8 @@
 package com.wesso.android.bakingapp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,13 +25,19 @@ import com.wesso.android.bakingapp.data.Step;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class RecipeFragment extends Fragment {
 
     private static final String EXTRA_RECIPE_ID = "com.wesso.android.bakingapp.recipe_id";
     public static final String TAG = "RecipeFragment";
-    private RecyclerView mStepRecyclerView;
-    private RecipeFragment.StepAdapter mAdapter;
     private Recipe recipe;
+    private RecipeFragment.StepAdapter mAdapter;
+
+    @BindView(R.id.steps_recycler_view) RecyclerView mStepRecyclerView;
+    @BindView(R.id.recipe_name) TextView mNameTextView;
+    @BindView(R.id.ingredients) TextView mIngredientsTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,33 +46,28 @@ public class RecipeFragment extends Fragment {
         RecipeRepository repository = RecipeRepository.get(getActivity());
         recipe = repository.getRecipe(recipeId);
         Log.d(TAG, "Recipe Name: " + recipe.getName());
-
     }
 
-    private void populateData(View view) {
-        TextView mIngredientsTextView = view.findViewById(R.id.ingredients);
-        TextView mNameTextView = view.findViewById(R.id.recipe_name);
-
-        mNameTextView.setText(recipe.getName());
-        mIngredientsTextView.setText(constructIngredients(recipe.getIngredients()));
-    }
-
-    private String constructIngredients(List<Ingredient> ingredients){
-        StringBuffer result = new StringBuffer();
-        for(Ingredient ingredient : ingredients) {
-            result.append("\u2022 " + ingredient.getIngredient() + " : " + ingredient.getQuantity() + " " + ingredient.getMeasure() + "\n");
-        }
-
-        return result.toString();
+    private void updateWidget(String recipeName, String ingredients){
+        Context context = getActivity();
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.baking_app_widget);
+        ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
+        remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
+        remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
+        appWidgetManager.updateAppWidget(thisWidget, remoteViews);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view  = inflater.inflate(R.layout.fragment_recipe, container, false);
-        populateData(view);
-        mStepRecyclerView = view.findViewById(R.id.steps_recycler_view);
+
+        ButterKnife.bind(this,view);
         mStepRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mNameTextView.setText(recipe.getName());
+        mIngredientsTextView.setText(Utils.constructIngredients(recipe.getIngredients()));
+        updateWidget(recipe.getName(), Utils.constructIngredients(recipe.getIngredients()));
 
         populateStepsData();
         return view;

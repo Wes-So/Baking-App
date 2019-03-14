@@ -9,5 +9,7 @@
     <string name="steps">Steps</string>
     <string name="short_description">Short Description</string>
     <string name="description">Description</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>

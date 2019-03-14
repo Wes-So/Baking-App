@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -28,20 +27,22 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.wesso.android.bakingapp.data.Step;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class StepFragment extends Fragment {
 
     private static final String EXTRA_STEP = "com.wesso.android.bakingapp.step";
     private SimpleExoPlayer mExoPlayer;
-    private SimpleExoPlayerView mPlayerView;
-    private TextView mShortDescription;
-    private TextView mLongDescription;
+    @BindView(R.id.short_description) TextView mShortDescription;
+    @BindView(R.id.long_description)  TextView mLongDescription;
+    @BindView(R.id.video_player) SimpleExoPlayerView mPlayerView;
     private static final String TAG = "Step Fragment";
     private Step step;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         step = getArguments().getParcelable(EXTRA_STEP);
         Log.d(TAG, "Step Name: " + step.getShortDescription());
     }
@@ -60,20 +61,15 @@ public class StepFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_step,container, false);
 
-        mPlayerView = view.findViewById(R.id.video_player);
-        mShortDescription = view.findViewById(R.id.short_description);
-        mLongDescription = view.findViewById(R.id.long_description);
-
+        ButterKnife.bind(this, view);
+        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getActivity().getResources(),
+                R.drawable.cupcake));
 
         mShortDescription.setText(step.getShortDescription());
         mLongDescription.setText(step.getDescription());
 
         // Initialize the player.
         initializePlayer(Uri.parse(step.getVideoURL()));
-
-
-
-
         return view;
     }
 
@@ -94,8 +90,6 @@ public class StepFragment extends Fragment {
                         getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
                 mExoPlayer.prepare(mediaSource);
                 mExoPlayer.setPlayWhenReady(true);
-
-
         }
     }
 

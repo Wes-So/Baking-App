@@ -1,5 +1,8 @@
 package com.wesso.android.bakingapp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,9 +23,12 @@ import com.wesso.android.bakingapp.data.RecipeRepository;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class RecipeListFragment extends Fragment {
 
-    private RecyclerView mRecipeRecyclerView;
+    @BindView(R.id.recipe_recycler_view) RecyclerView mRecipeRecyclerView;
     private RecipeAdapter mAdapter;
     private static final String TAG="RecipeListFragment";
 
@@ -29,7 +36,7 @@ public class RecipeListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_list,container, false);
-        mRecipeRecyclerView = view.findViewById(R.id.recipe_recycler_view);
+        ButterKnife.bind(this,view);
         mRecipeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         populateData();
@@ -50,10 +57,25 @@ public class RecipeListFragment extends Fragment {
             Log.d(TAG, "populateData: " + recipes.size());
             mAdapter = new RecipeAdapter(recipes);
             mRecipeRecyclerView.setAdapter(mAdapter);
+
         } else {
             mAdapter.notifyDataSetChanged();
         }
 
+        Recipe recipe = mAdapter.mRecipes.get(0);
+        updateWidget(recipe.getName(), Utils.constructIngredients(recipe.getIngredients()));
+
+    }
+
+    private void updateWidget(String recipeName, String ingredients){
+        Log.d(TAG, "updateWidget");
+        Context context = getActivity();
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.baking_app_widget);
+        ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
+        remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
+        remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
+        appWidgetManager.updateAppWidget(thisWidget, remoteViews);
     }
 
     private class RecipeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

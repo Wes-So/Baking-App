@@ -34,10 +34,28 @@ public class RecipeFragment extends Fragment {
     public static final String TAG = "RecipeFragment";
     private Recipe recipe;
     private RecipeFragment.StepAdapter mAdapter;
+    private Callbacks mCallbacks;
 
     @BindView(R.id.steps_recycler_view) RecyclerView mStepRecyclerView;
     @BindView(R.id.recipe_name) TextView mNameTextView;
     @BindView(R.id.ingredients) TextView mIngredientsTextView;
+
+
+    public interface Callbacks{
+        void onStepSelected(Step step);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +79,7 @@ public class RecipeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: inflating the view");
         View view  = inflater.inflate(R.layout.fragment_recipe, container, false);
 
         ButterKnife.bind(this,view);
@@ -125,8 +144,7 @@ public class RecipeFragment extends Fragment {
                 toast.show();
                 return;
             }
-            Intent intent = StepActivity.newIntent(getActivity(), mStep);
-            startActivity(intent);
+            mCallbacks.onStepSelected(mStep);
         }
     }
 

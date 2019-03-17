@@ -7,4 +7,6 @@ public class RecipeListActivity extends SingleFragmentActivity {
     protected Fragment createFragment() {
         return new RecipeListFragment();
     }
+
+
 }

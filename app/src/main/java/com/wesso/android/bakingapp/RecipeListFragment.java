@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,7 +38,14 @@ public class RecipeListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_list,container, false);
         ButterKnife.bind(this,view);
-        mRecipeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        boolean isPhone = getResources().getBoolean(R.bool.is_phone);
+        if(isPhone) {
+            mRecipeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        } else {
+            int numberOfColumns = 4;
+            mRecipeRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), numberOfColumns));
+        }
+
 
         populateData();
         return view;

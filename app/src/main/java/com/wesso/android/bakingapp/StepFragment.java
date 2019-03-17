@@ -33,12 +33,13 @@ import butterknife.ButterKnife;
 public class StepFragment extends Fragment {
 
     private static final String EXTRA_STEP = "com.wesso.android.bakingapp.step";
+    private static final String TAG = "Step Fragment";
     private SimpleExoPlayer mExoPlayer;
+    private Step step;
     @BindView(R.id.short_description) TextView mShortDescription;
     @BindView(R.id.long_description)  TextView mLongDescription;
     @BindView(R.id.video_player) SimpleExoPlayerView mPlayerView;
-    private static final String TAG = "Step Fragment";
-    private Step step;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,12 +85,12 @@ public class StepFragment extends Fragment {
             Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_foreground);
             mPlayerView.setDefaultArtwork(b);
 
-                // Prepare the MediaSource.
-                String userAgent = Util.getUserAgent(getActivity(), "Baking-App");
-                MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
-                        getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
-                mExoPlayer.prepare(mediaSource);
-                mExoPlayer.setPlayWhenReady(true);
+            // Prepare the MediaSource.
+            String userAgent = Util.getUserAgent(getActivity(), "Baking-App");
+            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
+                    getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
+            mExoPlayer.prepare(mediaSource);
+            mExoPlayer.setPlayWhenReady(true);
         }
     }
 

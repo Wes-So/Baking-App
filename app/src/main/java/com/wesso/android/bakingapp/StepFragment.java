@@ -1,6 +1,7 @@
 package com.wesso.android.bakingapp;
 
-import android.graphics.Bitmap;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,19 +12,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.wesso.android.bakingapp.data.Step;
 
@@ -36,9 +36,14 @@ public class StepFragment extends Fragment {
     private static final String TAG = "Step Fragment";
     private SimpleExoPlayer mExoPlayer;
     private Step step;
+    private long playbackPosition;
+    private int currentWindow;
+    private boolean playWhenReady;
+
     @BindView(R.id.short_description) TextView mShortDescription;
     @BindView(R.id.long_description)  TextView mLongDescription;
-    @BindView(R.id.video_player) SimpleExoPlayerView mPlayerView;
+    @BindView(R.id.video_player) PlayerView mPlayerView;
+
 
 
     @Override
@@ -63,9 +68,7 @@ public class StepFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_step,container, false);
 
         ButterKnife.bind(this, view);
-        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getActivity().getResources(),
-                R.drawable.cupcake));
-
+        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.cupcake));
         mShortDescription.setText(step.getShortDescription());
         mLongDescription.setText(step.getDescription());
 
@@ -78,26 +81,35 @@ public class StepFragment extends Fragment {
     private void initializePlayer(Uri mediaUri) {
         if (mExoPlayer == null) {
             // Create an instance of the ExoPlayer.
-            TrackSelector trackSelector = new DefaultTrackSelector();
-            LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector, loadControl);
+
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(
+                    new DefaultRenderersFactory(getActivity()),
+                    new DefaultTrackSelector(),
+                    new DefaultLoadControl());
+
             mPlayerView.setPlayer(mExoPlayer);
-            Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_foreground);
-            mPlayerView.setDefaultArtwork(b);
+            mExoPlayer.setPlayWhenReady(playWhenReady);
+            mExoPlayer.seekTo(currentWindow,playbackPosition);
+
 
             // Prepare the MediaSource.
             String userAgent = Util.getUserAgent(getActivity(), "Baking-App");
-            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
-                    getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
-            mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+            MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory(userAgent)).createMediaSource(mediaUri);
+            mExoPlayer.prepare(mediaSource, true, false);
         }
     }
 
+
+
+
     private void releasePlayer() {
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if(mExoPlayer != null) {
+            playbackPosition = mExoPlayer.getContentPosition();
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            playWhenReady = mExoPlayer.getPlayWhenReady();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
     @Override
@@ -105,5 +117,42 @@ public class StepFragment extends Fragment {
         super.onDestroy();
         releasePlayer();
     }
+
+
+    public void adjustExoPlayer(Configuration newConfig) {
+        // Checking the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //First Hide other objects (listview or recyclerview), better hide them using Gone.
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
+            params.width=params.MATCH_PARENT;
+            params.height=params.MATCH_PARENT;
+            mPlayerView.setLayoutParams(params);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            //unhide your objects here.
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
+            params.width=params.MATCH_PARENT;
+            params.height=600;
+            mPlayerView.setLayoutParams(params);
+        }
+    }
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        Log.d(TAG, "onConfigurationChanged: ");
+//        // Checking the orientation of the screen
+//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            //First Hide other objects (listview or recyclerview), better hide them using Gone.
+//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
+//            params.width=params.MATCH_PARENT;
+//            params.height=params.MATCH_PARENT;
+//            mPlayerView.setLayoutParams(params);
+//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+//            //unhide your objects here.
+//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
+//            params.width=params.MATCH_PARENT;
+//            params.height=600;
+//            mPlayerView.setLayoutParams(params);
+//        }
+//    }
 
 }

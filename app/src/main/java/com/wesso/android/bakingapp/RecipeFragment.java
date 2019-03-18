@@ -139,11 +139,11 @@ public class RecipeFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            if(mStep.getVideoURL().isEmpty()){
-                Toast toast = Toast.makeText(getActivity(), "No video for this step",Toast.LENGTH_SHORT);
-                toast.show();
-                return;
-            }
+//            if(mStep.getVideoURL().isEmpty()){
+//                Toast toast = Toast.makeText(getActivity(), "No video for this step",Toast.LENGTH_SHORT);
+//                toast.show();
+//                return;
+//            }
             mCallbacks.onStepSelected(mStep);
         }
     }

@@ -23,6 +23,7 @@ import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.data.RecipeRepository;
 import com.wesso.android.bakingapp.data.Step;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,7 +43,7 @@ public class RecipeFragment extends Fragment {
 
 
     public interface Callbacks{
-        void onStepSelected(Step step);
+        void onStepSelected(Step step, ArrayList<Step> steps);
     }
 
     @Override
@@ -125,6 +126,7 @@ public class RecipeFragment extends Fragment {
 
         private TextView mStepTextView;
         private Step mStep;
+        private ArrayList<Step> mSteps;
 
         public StepHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_step,parent,false));
@@ -132,19 +134,15 @@ public class RecipeFragment extends Fragment {
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Step step){
+        public void bind(Step step, List<Step> steps){
             mStepTextView.setText(step.getShortDescription());
             mStep = step;
+            mSteps = new ArrayList<Step>(steps);
         }
 
         @Override
         public void onClick(View view) {
-//            if(mStep.getVideoURL().isEmpty()){
-//                Toast toast = Toast.makeText(getActivity(), "No video for this step",Toast.LENGTH_SHORT);
-//                toast.show();
-//                return;
-//            }
-            mCallbacks.onStepSelected(mStep);
+            mCallbacks.onStepSelected(mStep, mSteps);
         }
     }
 
@@ -167,7 +165,7 @@ public class RecipeFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull RecipeFragment.StepHolder stepHolder, int position) {
             Step step = mSteps.get(position);
-            stepHolder.bind(step);
+            stepHolder.bind(step, mSteps);
         }
 
         @Override

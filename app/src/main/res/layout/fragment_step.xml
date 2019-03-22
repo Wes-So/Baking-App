@@ -1,37 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+    <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/video_player"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:padding="16dp" />
-
-
+        android:layout_height="358dp"
+        android:padding="16dp"
+        app:default_artwork="@drawable/error">
+    </com.google.android.exoplayer2.ui.PlayerView>
     <TextView
     android:id="@+id/short_description"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:text="Label"
     android:textAlignment="center"
     android:textStyle="bold" />
 
     <TextView
-    android:id="@+id/long_description"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:text="Long" />
+        android:id="@+id/long_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:typeface="normal" />
 
-    <!--<Button-->
-    <!--android:id="@+id/previous_btn"-->
-    <!--style="@style/Widget.MaterialComponents.Button.TextButton"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="Previous" />-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/previous_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="32dp"
+            android:text="@string/previous"
+            android:textSize="18sp"
+            style="?android:attr/buttonBarButtonStyle"/>
+
+        <Button
+            android:id="@+id/next_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/next"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            style="?android:attr/buttonBarButtonStyle"/>
+
+
+    </LinearLayout>
+
 
 </LinearLayout>

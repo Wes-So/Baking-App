@@ -1,7 +1,5 @@
 package com.wesso.android.bakingapp;
 
-import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,8 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -27,35 +27,48 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.wesso.android.bakingapp.data.Step;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class StepFragment extends Fragment {
 
     private static final String EXTRA_STEP = "com.wesso.android.bakingapp.step";
+    private static final String EXTRA_STEPS = "com.wesso.android.bakingapp.steps";
     private static final String TAG = "Step Fragment";
     private SimpleExoPlayer mExoPlayer;
     private Step step;
+    private List<Step> mSteps;
     private long playbackPosition;
     private int currentWindow;
     private boolean playWhenReady;
+    private int mTotalSteps;
+    private String  userAgent;
 
     @BindView(R.id.short_description) TextView mShortDescription;
     @BindView(R.id.long_description)  TextView mLongDescription;
     @BindView(R.id.video_player) PlayerView mPlayerView;
-
-
+    @BindView(R.id.previous_btn) Button mPreviousButton;
+    @BindView(R.id.next_btn) Button mNextButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         step = getArguments().getParcelable(EXTRA_STEP);
+        mSteps = getArguments().getParcelableArrayList(EXTRA_STEPS);
+        mTotalSteps = mSteps.size();
+        userAgent = Util.getUserAgent(getActivity(), "Baking-App");
         Log.d(TAG, "Step Name: " + step.getShortDescription());
     }
 
-    public static StepFragment newInstance(Step step){
+
+    public static StepFragment newInstance(Step step, ArrayList<Step> steps){
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_STEP,step);
+        args.putParcelableArrayList(EXTRA_STEPS,steps);
 
         StepFragment fragment = new StepFragment();
         fragment.setArguments(args);
@@ -66,22 +79,72 @@ public class StepFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_step,container, false);
-
         ButterKnife.bind(this, view);
-        mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.cupcake));
-        mShortDescription.setText(step.getShortDescription());
-        mLongDescription.setText(step.getDescription());
+        setStepDescription();
 
         // Initialize the player.
         initializePlayer(Uri.parse(step.getVideoURL()));
+
+        mPreviousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handlePreviousVideo();
+            }
+        });
+
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleNextVideo();
+            }
+        });
+
         return view;
     }
 
+    private void setStepDescription(){
+        mShortDescription.setText(step.getShortDescription());
+        mLongDescription.setText(step.getDescription());
+    }
+
+    private void handlePreviousVideo(){
+        int currentId = step.getId();
+        int prevId = currentId - 1;
+
+        if(prevId > -1){
+            pageHandler(prevId);
+        } else {
+            Toast toast = Toast.makeText(getActivity(),"Reached the last step", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+
+    private void handleNextVideo() {
+        int currentId = step.getId();
+        int nextId = currentId + 1;
+        if(nextId < mTotalSteps){
+            pageHandler(nextId);
+        } else {
+            Toast toast = Toast.makeText(getActivity(),"Reached the last step", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+    private void pageHandler(int id){
+        step = mSteps.get(id);
+        Log.d(TAG, "handleNextVideo: " + step.getDescription());
+        Log.d(TAG, "Number of steps received: " + mTotalSteps);
+        setStepDescription();
+        if(mExoPlayer != null) {
+            mediaSourceHandler(Uri.parse(step.getVideoURL()));
+        } else {
+            initializePlayer(Uri.parse(step.getVideoURL()));
+        }
+    }
 
     private void initializePlayer(Uri mediaUri) {
         if (mExoPlayer == null) {
-            // Create an instance of the ExoPlayer.
-
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(
                     new DefaultRenderersFactory(getActivity()),
                     new DefaultTrackSelector(),
@@ -91,16 +154,25 @@ public class StepFragment extends Fragment {
             mExoPlayer.setPlayWhenReady(playWhenReady);
             mExoPlayer.seekTo(currentWindow,playbackPosition);
 
-
-            // Prepare the MediaSource.
-            String userAgent = Util.getUserAgent(getActivity(), "Baking-App");
-            MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory(userAgent)).createMediaSource(mediaUri);
-            mExoPlayer.prepare(mediaSource, true, false);
+            mediaSourceHandler(mediaUri);
         }
     }
 
-
-
+    private void mediaSourceHandler(Uri mediaUri){
+        // Prepare the MediaSource.
+        if(!mediaUri.toString().isEmpty()){
+//            mPlayerView.setVisibility(View.VISIBLE);
+            mPlayerView.showController();
+            MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory(userAgent)).createMediaSource(mediaUri);
+            mExoPlayer.prepare(mediaSource, true, false);
+        } else {
+            Log.d(TAG, "No URL found");
+            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
+                    (getResources(), R.drawable.cupcake));
+            mPlayerView.hideController();
+//            mPlayerView.setVisibility(View.INVISIBLE);
+        }
+    }
 
     private void releasePlayer() {
         if(mExoPlayer != null) {
@@ -119,40 +191,8 @@ public class StepFragment extends Fragment {
     }
 
 
-    public void adjustExoPlayer(Configuration newConfig) {
-        // Checking the orientation of the screen
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            //First Hide other objects (listview or recyclerview), better hide them using Gone.
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
-            params.width=params.MATCH_PARENT;
-            params.height=params.MATCH_PARENT;
-            mPlayerView.setLayoutParams(params);
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            //unhide your objects here.
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
-            params.width=params.MATCH_PARENT;
-            params.height=600;
-            mPlayerView.setLayoutParams(params);
-        }
-    }
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        Log.d(TAG, "onConfigurationChanged: ");
-//        // Checking the orientation of the screen
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            //First Hide other objects (listview or recyclerview), better hide them using Gone.
-//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
-//            params.width=params.MATCH_PARENT;
-//            params.height=params.MATCH_PARENT;
-//            mPlayerView.setLayoutParams(params);
-//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-//            //unhide your objects here.
-//            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mPlayerView.getLayoutParams();
-//            params.width=params.MATCH_PARENT;
-//            params.height=600;
-//            mPlayerView.setLayoutParams(params);
-//        }
-//    }
+
+
+
 
 }

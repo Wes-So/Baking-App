@@ -5,13 +5,15 @@ import android.view.View;
 
 import org.hamcrest.Matcher;
 
+import java.util.Objects;
+
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
 
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class RecyclerViewItemCountAssertion implements ViewAssertion {
+class RecyclerViewItemCountAssertion implements ViewAssertion {
 
 
     private final Matcher<Integer> matcher;
@@ -32,6 +34,6 @@ public class RecyclerViewItemCountAssertion implements ViewAssertion {
 
         RecyclerView recyclerView = (RecyclerView) view;
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
-        assertThat(adapter.getItemCount(), matcher);
+        assertThat(Objects.requireNonNull(adapter).getItemCount(), matcher);
     }
 }

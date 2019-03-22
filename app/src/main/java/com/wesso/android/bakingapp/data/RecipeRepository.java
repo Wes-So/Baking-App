@@ -6,7 +6,7 @@ import java.util.List;
 public class RecipeRepository {
 
     private static RecipeRepository sRecipeRepository;
-    private List<Recipe> mRecipes;
+    private final List<Recipe> mRecipes;
 
 
     public static RecipeRepository get(Context context) {

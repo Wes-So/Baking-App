@@ -3,7 +3,6 @@ package com.wesso.android.bakingapp;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,15 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.wesso.android.bakingapp.data.Ingredient;
 import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.data.RecipeRepository;
 import com.wesso.android.bakingapp.data.Step;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,7 +30,7 @@ import butterknife.ButterKnife;
 public class RecipeFragment extends Fragment {
 
     private static final String EXTRA_RECIPE_ID = "com.wesso.android.bakingapp.recipe_id";
-    public static final String TAG = "RecipeFragment";
+    private static final String TAG = "RecipeFragment";
     private Recipe recipe;
     private RecipeFragment.StepAdapter mAdapter;
     private Callbacks mCallbacks;
@@ -61,7 +59,7 @@ public class RecipeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int recipeId = getArguments().getInt(EXTRA_RECIPE_ID);
+        int recipeId = Objects.requireNonNull(getArguments()).getInt(EXTRA_RECIPE_ID);
         RecipeRepository repository = RecipeRepository.get(getActivity());
         recipe = repository.getRecipe(recipeId);
         Log.d(TAG, "Recipe Name: " + recipe.getName());
@@ -70,7 +68,7 @@ public class RecipeFragment extends Fragment {
     private void updateWidget(String recipeName, String ingredients){
         Context context = getActivity();
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.baking_app_widget);
+        RemoteViews remoteViews = new RemoteViews(Objects.requireNonNull(context).getPackageName(), R.layout.baking_app_widget);
         ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
         remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
         remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
@@ -124,20 +122,20 @@ public class RecipeFragment extends Fragment {
 
     private class StepHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView mStepTextView;
+        private final TextView mStepTextView;
         private Step mStep;
         private ArrayList<Step> mSteps;
 
-        public StepHolder(LayoutInflater inflater, ViewGroup parent) {
+        StepHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_step,parent,false));
             mStepTextView = itemView.findViewById(R.id.recipe_step);
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Step step, List<Step> steps){
+        void bind(Step step, List<Step> steps){
             mStepTextView.setText(step.getShortDescription());
             mStep = step;
-            mSteps = new ArrayList<Step>(steps);
+            mSteps = new ArrayList<>(steps);
         }
 
         @Override
@@ -148,9 +146,9 @@ public class RecipeFragment extends Fragment {
 
     private class StepAdapter extends RecyclerView.Adapter<RecipeFragment.StepHolder> {
 
-        private List<Step> mSteps;
+        private final List<Step> mSteps;
 
-        public StepAdapter(List<Step> steps) {
+        StepAdapter(List<Step> steps) {
             mSteps = steps;
         }
 

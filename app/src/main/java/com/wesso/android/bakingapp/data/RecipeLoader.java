@@ -9,10 +9,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeLoader {
+class RecipeLoader {
 
     private final static String TAG = "RecipeLoader";
 
@@ -25,7 +26,7 @@ public class RecipeLoader {
                 jsonRecipe.optInt("servings"),
                 jsonRecipe.optString("image")
         );
-    };
+    }
 
     public static List<Recipe>  getRecipes(Context context){
         List<Recipe> recipes = new ArrayList<>();
@@ -46,7 +47,7 @@ public class RecipeLoader {
         }
 
         return recipes;
-    };
+    }
 
     private static List<Ingredient> getIngredients(JSONArray jsonIngredients) throws JSONException {
         List<Ingredient> ingredients = new ArrayList<>();
@@ -55,7 +56,7 @@ public class RecipeLoader {
         }
 
         return ingredients;
-    };
+    }
 
 
     private static Ingredient getIngredient(JSONObject jsonIngredient){
@@ -64,7 +65,7 @@ public class RecipeLoader {
                 jsonIngredient.optString("measure"),
                 jsonIngredient.optString("ingredient")
         );
-    };
+    }
 
     private static List<Step> getListOfSteps(JSONArray jsonStepsArray) throws JSONException{
         List<Step> listOfSteps = new ArrayList<>();
@@ -81,10 +82,10 @@ public class RecipeLoader {
                 jsonStep.optString("description"),
                 jsonStep.optString("videoURL"),
                 jsonStep.optString("thumbnailURL"));
-    };
+    }
 
 
-
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static String getJSONString(Context context) throws IOException {
         String jsonString;
         InputStream is = context.getAssets().open("recipes.json");
@@ -93,7 +94,7 @@ public class RecipeLoader {
         is.read(buffer);
         is.close();
 
-        jsonString = new String(buffer,"UTF-8");
+        jsonString = new String(buffer, StandardCharsets.UTF_8);
 
         return jsonString;
     }

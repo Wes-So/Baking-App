@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,9 +26,9 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.wesso.android.bakingapp.data.Step;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,9 +56,9 @@ public class StepFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        step = getArguments().getParcelable(EXTRA_STEP);
+        step = Objects.requireNonNull(getArguments()).getParcelable(EXTRA_STEP);
         mSteps = getArguments().getParcelableArrayList(EXTRA_STEPS);
-        mTotalSteps = mSteps.size();
+        mTotalSteps = Objects.requireNonNull(mSteps).size();
         userAgent = Util.getUserAgent(getActivity(), "Baking-App");
         Log.d(TAG, "Step Name: " + step.getShortDescription());
     }

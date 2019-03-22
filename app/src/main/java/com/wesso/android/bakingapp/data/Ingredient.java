@@ -1,9 +1,9 @@
 package com.wesso.android.bakingapp.data;
 
 public class Ingredient {
-    private int quantity;
-    private String measure;
-    private String ingredient;
+    private final int quantity;
+    private final String measure;
+    private final String ingredient;
 
     public Ingredient(int quantity, String measure, String ingredient) {
         this.quantity = quantity;
@@ -15,23 +15,12 @@ public class Ingredient {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
     public String getMeasure() {
         return measure;
-    }
-
-    public void setMeasure(String measure) {
-        this.measure = measure;
     }
 
     public String getIngredient() {
         return ingredient;
     }
 
-    public void setIngredient(String ingredient) {
-        this.ingredient = ingredient;
-    }
 }

@@ -17,12 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.data.RecipeRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -79,7 +79,7 @@ public class RecipeListFragment extends Fragment {
         Log.d(TAG, "updateWidget");
         Context context = getActivity();
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.baking_app_widget);
+        RemoteViews remoteViews = new RemoteViews(Objects.requireNonNull(context).getPackageName(), R.layout.baking_app_widget);
         ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
         remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
         remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
@@ -88,16 +88,16 @@ public class RecipeListFragment extends Fragment {
 
     private class RecipeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView mRecipeNameTextView;
+        private final TextView mRecipeNameTextView;
         private Recipe mRecipe;
 
-        public RecipeHolder(LayoutInflater inflater, ViewGroup parent) {
+        RecipeHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_recipe,parent,false));
             mRecipeNameTextView = itemView.findViewById(R.id.recipe_name);
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Recipe recipe){
+        void bind(Recipe recipe){
             mRecipeNameTextView.setText(recipe.getName());
             mRecipe = recipe;
         }
@@ -111,9 +111,9 @@ public class RecipeListFragment extends Fragment {
 
     private class RecipeAdapter extends RecyclerView.Adapter<RecipeHolder> {
 
-        private List<Recipe> mRecipes;
+        private final List<Recipe> mRecipes;
 
-        public RecipeAdapter(List<Recipe> recipes) {
+        RecipeAdapter(List<Recipe> recipes) {
             mRecipes = recipes;
         }
 

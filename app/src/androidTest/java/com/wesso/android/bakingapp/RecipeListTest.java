@@ -17,9 +17,6 @@ import static org.hamcrest.Matchers.lessThan;
 @RunWith(AndroidJUnit4.class)
 public class RecipeListTest  {
 
-    private static final String BAKED_ITEM = "Green Tea";
-    private static final String TAG = "RecipeListTest";
-
     @Before
     public void launchActivity() {
         ActivityScenario.launch(RecipeListActivity.class);

@@ -18,7 +18,7 @@ public class Step implements Parcelable {
         this.thumbnailURL = thumbnailURL;
     }
 
-    public Step(Parcel in) {
+    private Step(Parcel in) {
         id = in.readInt();
         shortDescription = in.readString();
         description = in.readString();

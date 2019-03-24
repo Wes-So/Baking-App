@@ -3,7 +3,9 @@ package com.wesso.android.bakingapp;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
+import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.data.Step;
 
 import java.util.ArrayList;
@@ -11,17 +13,18 @@ import java.util.ArrayList;
 public class RecipeActivity extends SingleFragmentActivity
     implements RecipeFragment.Callbacks {
 
-    private static final String EXTRA_RECIPE_ID = "com.wesso.android.bakingapp.recipe_id";
+    private static final String EXTRA_RECIPE = "com.wesso.android.bakingapp.recipe";
 
     @Override
     protected Fragment createFragment() {
-        int recipeId = getIntent().getIntExtra(EXTRA_RECIPE_ID,0);
-        return RecipeFragment.newInstance(recipeId);
+        Recipe recipe = getIntent().getParcelableExtra(EXTRA_RECIPE);
+        return RecipeFragment.newInstance(recipe);
     }
 
-    public static Intent newIntent(Context context, int recipeId) {
+    public static Intent newIntent(Context context, Recipe recipe) {
         Intent intent = new Intent(context, RecipeActivity.class);
-        intent.putExtra(EXTRA_RECIPE_ID, recipeId);
+        Log.d("TEST", "newIntent: " + recipe.getIngredients().size());
+        intent.putExtra(EXTRA_RECIPE, recipe);
         return intent;
     }
 

@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,8 +20,10 @@ import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.wesso.android.bakingapp.data.Recipe;
+import com.wesso.android.bakingapp.data.RecipeLoader;
 import com.wesso.android.bakingapp.data.RecipeRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,19 +63,13 @@ public class RecipeListFragment extends Fragment {
 
     private void populateData() {
         if(mAdapter == null) {
-            RecipeRepository repository = RecipeRepository.get(getActivity());
-            List<Recipe> recipes = repository.getRecipes();
-            Log.d(TAG, "populateData: " + recipes.size());
+            List<Recipe> recipes = new ArrayList<>();
             mAdapter = new RecipeAdapter(recipes);
             mRecipeRecyclerView.setAdapter(mAdapter);
-
+            new RecipeAsyncTask().execute();
         } else {
             mAdapter.notifyDataSetChanged();
         }
-
-        Recipe recipe = mAdapter.mRecipes.get(0);
-        updateWidget(recipe.getName(), Utils.constructIngredients(recipe.getIngredients()));
-
     }
 
     private void updateWidget(String recipeName, String ingredients){
@@ -104,14 +101,14 @@ public class RecipeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = RecipeActivity.newIntent(getActivity(), mRecipe.getId());
+            Intent intent = RecipeActivity.newIntent(getActivity(), mRecipe);
             startActivity(intent);
         }
     }
 
     private class RecipeAdapter extends RecyclerView.Adapter<RecipeHolder> {
 
-        private final List<Recipe> mRecipes;
+        private  List<Recipe> mRecipes;
 
         RecipeAdapter(List<Recipe> recipes) {
             mRecipes = recipes;
@@ -134,6 +131,37 @@ public class RecipeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mRecipes.size();
+        }
+
+        public void setRecipes(List<Recipe> mRecipes) {
+            this.mRecipes = mRecipes;
+        }
+    }
+
+    private class RecipeAsyncTask extends AsyncTask<Void, String, List<Recipe>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected List<Recipe> doInBackground(Void... params) {
+            RecipeLoader loader = new RecipeLoader();
+            List<Recipe> recipes = loader.getRecipes();
+            return recipes;
+        }
+
+        @Override
+        protected void onPostExecute(List<Recipe> result) {
+            super.onPostExecute(result);
+            mAdapter.setRecipes(result);
+            mAdapter.notifyDataSetChanged();
+
         }
     }
 

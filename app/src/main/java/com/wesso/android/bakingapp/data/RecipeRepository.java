@@ -17,7 +17,8 @@ public class RecipeRepository {
     }
 
     private RecipeRepository(Context context) {
-        mRecipes = RecipeLoader.getRecipes(context);
+        RecipeLoader loader = new RecipeLoader();
+        mRecipes = loader.getRecipes();
     }
 
     public List<Recipe> getRecipes() {

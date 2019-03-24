@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,14 +84,12 @@ public class StepFragment extends Fragment {
 
         // Initialize the player.
         initializePlayer(Uri.parse(step.getVideoURL()));
-
         mPreviousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 handlePreviousVideo();
             }
         });
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,7 +112,7 @@ public class StepFragment extends Fragment {
         if(prevId > -1){
             pageHandler(prevId);
         } else {
-            Toast toast = Toast.makeText(getActivity(),"Reached the last step", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getActivity(),"Reached the first step", Toast.LENGTH_SHORT);
             toast.show();
         }
     }
@@ -150,6 +149,8 @@ public class StepFragment extends Fragment {
                     new DefaultLoadControl());
 
             mPlayerView.setPlayer(mExoPlayer);
+            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
+                    (getResources(), R.drawable.cupcake));
             mExoPlayer.setPlayWhenReady(playWhenReady);
             mExoPlayer.seekTo(currentWindow,playbackPosition);
 
@@ -160,16 +161,13 @@ public class StepFragment extends Fragment {
     private void mediaSourceHandler(Uri mediaUri){
         // Prepare the MediaSource.
         if(!mediaUri.toString().isEmpty()){
-//            mPlayerView.setVisibility(View.VISIBLE);
-            mPlayerView.showController();
+            mPlayerView.setVisibility(View.VISIBLE);
+            mPlayerView.setUseController(true);
             MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory(userAgent)).createMediaSource(mediaUri);
             mExoPlayer.prepare(mediaSource, true, false);
         } else {
             Log.d(TAG, "No URL found");
-            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
-                    (getResources(), R.drawable.cupcake));
-            mPlayerView.hideController();
-//            mPlayerView.setVisibility(View.INVISIBLE);
+            mPlayerView.setUseController(false);
         }
     }
 

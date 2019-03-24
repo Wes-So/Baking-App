@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ import butterknife.ButterKnife;
 
 public class RecipeFragment extends Fragment {
 
-    private static final String EXTRA_RECIPE_ID = "com.wesso.android.bakingapp.recipe_id";
+    private static final String EXTRA_RECIPE = "com.wesso.android.bakingapp.recipe";
     private static final String TAG = "RecipeFragment";
     private Recipe recipe;
     private RecipeFragment.StepAdapter mAdapter;
@@ -38,6 +39,7 @@ public class RecipeFragment extends Fragment {
     @BindView(R.id.steps_recycler_view) RecyclerView mStepRecyclerView;
     @BindView(R.id.recipe_name) TextView mNameTextView;
     @BindView(R.id.ingredients) TextView mIngredientsTextView;
+    @BindView(R.id.recipe_ll) LinearLayout mRecipe_LL;
 
 
     public interface Callbacks{
@@ -59,9 +61,7 @@ public class RecipeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int recipeId = Objects.requireNonNull(getArguments()).getInt(EXTRA_RECIPE_ID);
-        RecipeRepository repository = RecipeRepository.get(getActivity());
-        recipe = repository.getRecipe(recipeId);
+        recipe = Objects.requireNonNull(getArguments()).getParcelable(EXTRA_RECIPE);
         Log.d(TAG, "Recipe Name: " + recipe.getName());
     }
 
@@ -78,11 +78,14 @@ public class RecipeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: inflating the view");
+
         View view  = inflater.inflate(R.layout.fragment_recipe, container, false);
 
         ButterKnife.bind(this,view);
+
         mStepRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mStepRecyclerView.setFocusable(false);
+        mRecipe_LL.requestFocus();
         mNameTextView.setText(recipe.getName());
         mIngredientsTextView.setText(Utils.constructIngredients(recipe.getIngredients()));
         updateWidget(recipe.getName(), Utils.constructIngredients(recipe.getIngredients()));
@@ -99,9 +102,10 @@ public class RecipeFragment extends Fragment {
 
 
     private void populateStepsData() {
+
         if(mAdapter == null) {
             List<Step> steps = recipe.getSteps();
-            Log.d(TAG, "populateData: " + steps.size());
+
             mAdapter = new RecipeFragment.StepAdapter(steps);
             mStepRecyclerView.setAdapter(mAdapter);
         } else {
@@ -110,9 +114,9 @@ public class RecipeFragment extends Fragment {
 
     }
 
-    public static RecipeFragment newInstance(int recipeId){
+    public static RecipeFragment newInstance(Recipe recipe){
         Bundle args = new Bundle();
-        args.putInt(EXTRA_RECIPE_ID,recipeId);
+        args.putParcelable(EXTRA_RECIPE,recipe);
 
         RecipeFragment fragment = new RecipeFragment();
         fragment.setArguments(args);
@@ -171,5 +175,7 @@ public class RecipeFragment extends Fragment {
             return mSteps.size();
         }
     }
+
+
 
 }

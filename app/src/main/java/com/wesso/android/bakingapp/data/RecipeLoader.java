@@ -13,11 +13,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-class RecipeLoader {
+public class RecipeLoader {
 
     private final static String TAG = "RecipeLoader";
+    private final static String url = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
 
-    private static Recipe getRecipe(JSONObject jsonRecipe) throws JSONException {
+    private  Recipe getRecipe(JSONObject jsonRecipe) throws JSONException {
         return new Recipe(
                 jsonRecipe.optInt("id"),
                 jsonRecipe.optString("name"),
@@ -28,10 +29,10 @@ class RecipeLoader {
         );
     }
 
-    public static List<Recipe>  getRecipes(Context context){
+    public  List<Recipe>  getRecipes(){
         List<Recipe> recipes = new ArrayList<>();
         try {
-            String jsonString = getJSONString(context);
+            String jsonString = getJSONString();
             Log.d(TAG, "getRecipes: " + jsonString);
             JSONArray jsonArray = new JSONArray(jsonString);
 
@@ -49,7 +50,7 @@ class RecipeLoader {
         return recipes;
     }
 
-    private static List<Ingredient> getIngredients(JSONArray jsonIngredients) throws JSONException {
+    private  List<Ingredient> getIngredients(JSONArray jsonIngredients) throws JSONException {
         List<Ingredient> ingredients = new ArrayList<>();
         for(int i = 0; i<jsonIngredients.length(); i++) {
             ingredients.add(getIngredient(jsonIngredients.getJSONObject(i)));
@@ -59,7 +60,7 @@ class RecipeLoader {
     }
 
 
-    private static Ingredient getIngredient(JSONObject jsonIngredient){
+    private Ingredient getIngredient(JSONObject jsonIngredient){
         return new Ingredient(
                 jsonIngredient.optInt("quantity"),
                 jsonIngredient.optString("measure"),
@@ -67,7 +68,7 @@ class RecipeLoader {
         );
     }
 
-    private static List<Step> getListOfSteps(JSONArray jsonStepsArray) throws JSONException{
+    private  List<Step> getListOfSteps(JSONArray jsonStepsArray) throws JSONException{
         List<Step> listOfSteps = new ArrayList<>();
         for(int i = 0; i<jsonStepsArray.length(); i++){
             listOfSteps.add(getStep(jsonStepsArray.getJSONObject(i)));
@@ -76,7 +77,7 @@ class RecipeLoader {
         return listOfSteps;
     }
 
-    private static Step getStep(JSONObject jsonStep){
+    private Step getStep(JSONObject jsonStep){
         return new Step(jsonStep.optInt("id"),
                 jsonStep.optString("shortDescription"),
                 jsonStep.optString("description"),
@@ -86,17 +87,21 @@ class RecipeLoader {
 
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static String getJSONString(Context context) throws IOException {
-        String jsonString;
-        InputStream is = context.getAssets().open("recipes.json");
+//    private static String getJSONString(Context context) throws IOException {
+//        String jsonString;
+//        InputStream is = context.getAssets().open("recipes.json");
+//
+//        byte[] buffer = new byte[is.available()];
+//        is.read(buffer);
+//        is.close();
+//
+//        jsonString = new String(buffer, StandardCharsets.UTF_8);
+//
+//        return jsonString;
+//    }
 
-        byte[] buffer = new byte[is.available()];
-        is.read(buffer);
-        is.close();
-
-        jsonString = new String(buffer, StandardCharsets.UTF_8);
-
-        return jsonString;
+    private String getJSONString() throws IOException {
+        return NetworkUtils.getData(url);
     }
 
 

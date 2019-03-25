@@ -1,8 +1,5 @@
 package com.wesso.android.bakingapp;
 
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.wesso.android.bakingapp.data.Recipe;
@@ -25,12 +21,13 @@ import com.wesso.android.bakingapp.data.RecipeRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecipeListFragment extends Fragment {
+
+    private final static String BUNDLE_RECIPELIST_KEY = "com.wesso.android.recipelist";
 
     @BindView(R.id.recipe_recycler_view) RecyclerView mRecipeRecyclerView;
     private RecipeAdapter mAdapter;
@@ -49,38 +46,31 @@ public class RecipeListFragment extends Fragment {
             mRecipeRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), numberOfColumns));
         }
 
+        List<Recipe> recipes = new ArrayList<>();
+        mAdapter = new RecipeAdapter(recipes);
+        mRecipeRecyclerView.setAdapter(mAdapter);
 
-        populateData();
+        if(savedInstanceState != null) {
+            recipes = savedInstanceState.getParcelableArrayList(BUNDLE_RECIPELIST_KEY);
+            mAdapter.setRecipes(recipes);
+        } else {
+            new RecipeAsyncTask().execute();
+        }
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        populateData();
     }
 
-
-    private void populateData() {
-        if(mAdapter == null) {
-            List<Recipe> recipes = new ArrayList<>();
-            mAdapter = new RecipeAdapter(recipes);
-            mRecipeRecyclerView.setAdapter(mAdapter);
-            new RecipeAsyncTask().execute();
-        } else {
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private void updateWidget(String recipeName, String ingredients){
-        Log.d(TAG, "updateWidget");
-        Context context = getActivity();
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        RemoteViews remoteViews = new RemoteViews(Objects.requireNonNull(context).getPackageName(), R.layout.baking_app_widget);
-        ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
-        remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
-        remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
-        appWidgetManager.updateAppWidget(thisWidget, remoteViews);
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.d(TAG, "onSaveInstanceState: Saving recipeList");
+        ArrayList<Recipe> recipeList = new ArrayList<>(mAdapter.getRecipes());
+        savedInstanceState.putParcelableArrayList(BUNDLE_RECIPELIST_KEY, recipeList);
     }
 
     private class RecipeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -136,6 +126,10 @@ public class RecipeListFragment extends Fragment {
         public void setRecipes(List<Recipe> mRecipes) {
             this.mRecipes = mRecipes;
         }
+
+        public List<Recipe> getRecipes(){
+            return mRecipes;
+        }
     }
 
     private class RecipeAsyncTask extends AsyncTask<Void, String, List<Recipe>> {
@@ -161,7 +155,7 @@ public class RecipeListFragment extends Fragment {
             super.onPostExecute(result);
             mAdapter.setRecipes(result);
             mAdapter.notifyDataSetChanged();
-
+            RecipeRepository.get(getActivity(),result);
         }
     }
 

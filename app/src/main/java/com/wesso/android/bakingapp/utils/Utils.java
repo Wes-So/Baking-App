@@ -1,4 +1,4 @@
-package com.wesso.android.bakingapp;
+package com.wesso.android.bakingapp.utils;
 
 import android.util.Log;
 
@@ -6,7 +6,7 @@ import com.wesso.android.bakingapp.data.Ingredient;
 
 import java.util.List;
 
-class Utils {
+public class Utils {
 
     public static  String constructIngredients(List<Ingredient> ingredients){
         StringBuilder result = new StringBuilder();

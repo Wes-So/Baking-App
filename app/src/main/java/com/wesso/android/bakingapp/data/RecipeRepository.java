@@ -9,16 +9,15 @@ public class RecipeRepository {
     private final List<Recipe> mRecipes;
 
 
-    public static RecipeRepository get(Context context) {
+    public static RecipeRepository get(Context context, List<Recipe> recipes) {
         if(sRecipeRepository == null) {
-            sRecipeRepository = new RecipeRepository(context);
+            sRecipeRepository = new RecipeRepository(context, recipes);
          }
         return sRecipeRepository;
     }
 
-    private RecipeRepository(Context context) {
-        RecipeLoader loader = new RecipeLoader();
-        mRecipes = loader.getRecipes();
+    private RecipeRepository(Context context, List<Recipe> recipes) {
+         mRecipes = recipes;
     }
 
     public List<Recipe> getRecipes() {

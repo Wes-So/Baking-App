@@ -18,8 +18,10 @@ import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import com.wesso.android.bakingapp.data.Recipe;
-import com.wesso.android.bakingapp.data.RecipeRepository;
 import com.wesso.android.bakingapp.data.Step;
+import com.wesso.android.bakingapp.utils.Utils;
+import com.wesso.android.bakingapp.widget.BakingAppWidgetProvider;
+import com.wesso.android.bakingapp.widget.BakingAppWidgetService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,15 +67,6 @@ public class RecipeFragment extends Fragment {
         Log.d(TAG, "Recipe Name: " + recipe.getName());
     }
 
-    private void updateWidget(String recipeName, String ingredients){
-        Context context = getActivity();
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        RemoteViews remoteViews = new RemoteViews(Objects.requireNonNull(context).getPackageName(), R.layout.baking_app_widget);
-        ComponentName thisWidget = new ComponentName(context, BakingAppWidget.class);
-        remoteViews.setTextViewText(R.id.widget_recipe_name, recipeName);
-        remoteViews.setTextViewText(R.id.widget_ingredients, ingredients);
-        appWidgetManager.updateAppWidget(thisWidget, remoteViews);
-    }
 
     @Nullable
     @Override
@@ -88,8 +81,8 @@ public class RecipeFragment extends Fragment {
         mRecipe_LL.requestFocus();
         mNameTextView.setText(recipe.getName());
         mIngredientsTextView.setText(Utils.constructIngredients(recipe.getIngredients()));
-        updateWidget(recipe.getName(), Utils.constructIngredients(recipe.getIngredients()));
 
+        BakingAppWidgetService.startActionUpdateRecipe(getActivity(),recipe);
         populateStepsData();
         return view;
     }

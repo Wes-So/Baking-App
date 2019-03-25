@@ -38,6 +38,10 @@ public class StepFragment extends Fragment {
 
     private static final String EXTRA_STEP = "com.wesso.android.bakingapp.step";
     private static final String EXTRA_STEPS = "com.wesso.android.bakingapp.steps";
+    private final static String KEY_WINDOW = "com.wesso.android.bakingapp.key_window";
+    private final static String KEY_POSITION = "com.wesso.android.bakingapp.key_position";
+    private final static String KEY_AUTO_PLAY = "com.wesso.android.bakingapp.autoplay";
+    private final static String KEY_STEP = "com.wesso.android.bakingapp.saved_step";
     private static final String TAG = "Step Fragment";
     private SimpleExoPlayer mExoPlayer;
     private Step step;
@@ -80,10 +84,19 @@ public class StepFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_step,container, false);
         ButterKnife.bind(this, view);
-        setStepDescription();
 
-        // Initialize the player.
-        initializePlayer(Uri.parse(step.getVideoURL()));
+
+        if (savedInstanceState != null) {
+            Log.d(TAG, "onCreateView: Retrieving saved data");
+            playWhenReady = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
+            currentWindow = savedInstanceState.getInt(KEY_WINDOW);
+            playbackPosition = savedInstanceState.getLong(KEY_POSITION);
+            Log.d(TAG, "onCreateView: Playback position " + playbackPosition);
+            step = savedInstanceState.getParcelable(KEY_STEP);
+        }
+
+        setStepDescription();
+        //initializePlayer(Uri.parse(step.getVideoURL()));
         mPreviousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,10 +162,10 @@ public class StepFragment extends Fragment {
                     new DefaultLoadControl());
 
             mPlayerView.setPlayer(mExoPlayer);
-            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
-                    (getResources(), R.drawable.cupcake));
-            mExoPlayer.setPlayWhenReady(playWhenReady);
-            mExoPlayer.seekTo(currentWindow,playbackPosition);
+            mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(), R.drawable.cupcake));
+            Log.d(TAG, "initializePlayer: playWhenReady " + playWhenReady);
+            Log.d(TAG, "initializePlayer: playBackPosition " + playbackPosition);
+            Log.d(TAG, "initializePlayer: now seeking");
 
             mediaSourceHandler(mediaUri);
         }
@@ -161,10 +174,13 @@ public class StepFragment extends Fragment {
     private void mediaSourceHandler(Uri mediaUri){
         // Prepare the MediaSource.
         if(!mediaUri.toString().isEmpty()){
-            mPlayerView.setVisibility(View.VISIBLE);
+
             mPlayerView.setUseController(true);
             MediaSource mediaSource = new ExtractorMediaSource.Factory(new DefaultHttpDataSourceFactory(userAgent)).createMediaSource(mediaUri);
-            mExoPlayer.prepare(mediaSource, true, false);
+            mExoPlayer.seekTo(currentWindow,playbackPosition);
+            mExoPlayer.setPlayWhenReady(playWhenReady);
+            mExoPlayer.prepare(mediaSource, false, false);
+
         } else {
             Log.d(TAG, "No URL found");
             mPlayerView.setUseController(false);
@@ -173,19 +189,80 @@ public class StepFragment extends Fragment {
 
     private void releasePlayer() {
         if(mExoPlayer != null) {
-            playbackPosition = mExoPlayer.getContentPosition();
-            currentWindow = mExoPlayer.getCurrentWindowIndex();
-            playWhenReady = mExoPlayer.getPlayWhenReady();
+            
+            updateStartPosition();
             mExoPlayer.release();
             mExoPlayer = null;
         }
     }
+
+    private void updateStartPosition() {
+        if (mExoPlayer != null) {
+            playbackPosition = Math.max(0, mExoPlayer.getContentPosition());
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            playWhenReady = mExoPlayer.getPlayWhenReady();
+
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23){
+            initializePlayer(Uri.parse(step.getVideoURL()));
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        initializePlayer(Uri.parse(step.getVideoURL()));
+    }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         releasePlayer();
     }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(Util.SDK_INT <= 23) {
+            releasePlayer();
+        } else if(mExoPlayer != null) {
+            mExoPlayer.stop();
+        }
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+
+    }
+
+
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: ");
+        updateStartPosition();
+        outState.putBoolean(KEY_AUTO_PLAY, playWhenReady);
+
+        outState.putInt(KEY_WINDOW, currentWindow);
+        outState.putLong(KEY_POSITION, playbackPosition);
+
+        outState.putParcelable(KEY_STEP, step);
+    }
+
 
 
 

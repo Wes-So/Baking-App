@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.data.RecipeLoader;
-import com.wesso.android.bakingapp.data.RecipeRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class RecipeListFragment extends Fragment {
     private final static String BUNDLE_RECIPELIST_KEY = "com.wesso.android.recipelist";
 
     @BindView(R.id.recipe_recycler_view) RecyclerView mRecipeRecyclerView;
-    private RecipeAdapter mAdapter;
+    private static RecipeAdapter mAdapter;
     private static final String TAG="RecipeListFragment";
 
     @Nullable
@@ -61,12 +60,7 @@ public class RecipeListFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         Log.d(TAG, "onSaveInstanceState: Saving recipeList");
         ArrayList<Recipe> recipeList = new ArrayList<>(mAdapter.getRecipes());
@@ -123,20 +117,16 @@ public class RecipeListFragment extends Fragment {
             return mRecipes.size();
         }
 
-        public void setRecipes(List<Recipe> mRecipes) {
+        void setRecipes(List<Recipe> mRecipes) {
             this.mRecipes = mRecipes;
         }
 
-        public List<Recipe> getRecipes(){
+        List<Recipe> getRecipes(){
             return mRecipes;
         }
     }
 
-    private class RecipeAsyncTask extends AsyncTask<Void, String, List<Recipe>> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
+    private static class RecipeAsyncTask extends AsyncTask<Void, String, List<Recipe>> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -146,8 +136,7 @@ public class RecipeListFragment extends Fragment {
         @Override
         protected List<Recipe> doInBackground(Void... params) {
             RecipeLoader loader = new RecipeLoader();
-            List<Recipe> recipes = loader.getRecipes();
-            return recipes;
+            return loader.getRecipes();
         }
 
         @Override
@@ -155,7 +144,7 @@ public class RecipeListFragment extends Fragment {
             super.onPostExecute(result);
             mAdapter.setRecipes(result);
             mAdapter.notifyDataSetChanged();
-            RecipeRepository.get(getActivity(),result);
+            //RecipeRepository.get(getActivity(),result);
         }
     }
 

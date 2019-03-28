@@ -32,12 +32,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/ingredients"
                 android:textAllCaps="true"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_margin="10dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/ingredients"/>
+            android:id="@+id/ingredients"
+            android:layout_margin="10dp"/>
 
             <TextView
                 android:layout_width="match_parent"

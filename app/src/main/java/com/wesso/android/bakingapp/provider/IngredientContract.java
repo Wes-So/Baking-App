@@ -7,12 +7,12 @@ public class IngredientContract {
 
 
     public static final String AUTHORITY = "com.wesso.android.bakingapp";
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-    public static final String PATH_INGREDIENTSS = "ingredients";
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    private static final String PATH_INGREDIENT = "ingredients";
     public static final class IngredientEntry implements BaseColumns {
 
 
-        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENTSS).build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENT).build();
 
         public static final String TABLE_NAME = "ingredients";
         public static final String COLUMN_MEASURE = "measure";

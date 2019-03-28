@@ -12,6 +12,7 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="previous">Previous</string>
-    <string name="next">Next</string>
+    <string name="next_button">Next</string>
+    <string name="message">Click a recipe on the main app</string>
 
 </resources>

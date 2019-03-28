@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/next"
+            android:text="@string/next_button"
             android:textAlignment="center"
             android:textSize="18sp"
             style="?android:attr/buttonBarButtonStyle"/>

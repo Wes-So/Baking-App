@@ -6,12 +6,10 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
 import com.wesso.android.bakingapp.data.Ingredient;
 import com.wesso.android.bakingapp.data.Recipe;
-import com.wesso.android.bakingapp.provider.IngredientContentProvider;
 import com.wesso.android.bakingapp.provider.IngredientContract;
 
 import java.util.List;
@@ -20,8 +18,8 @@ import java.util.List;
 public class BakingAppWidgetService extends IntentService {
 
 
-    public final static String ACTION_UPDATE_RECIPE_WIDGET = "com.wesso.android.bakingapp.recipwidget";
-    public final static String EXTRA_RECIPE = "com.wesso.android.bakingapp.recipe";
+    private final static String ACTION_UPDATE_RECIPE_WIDGET = "com.wesso.android.bakingapp.recipewidget";
+    private final static String EXTRA_RECIPE = "com.wesso.android.bakingapp.recipe";
     private final static String TAG = "BakingAppWidgetService";
 
     public BakingAppWidgetService(){

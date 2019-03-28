@@ -5,20 +5,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.wesso.android.bakingapp.data.Recipe;
 import com.wesso.android.bakingapp.provider.IngredientContract;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BakingAppListWidgetService extends RemoteViewsService {
 
-    public final static String EXTRA_RECIPE = "com.wesso.android.bakingapp.recipe";
+
     public final static String TAG = "BakingAppListWidgetService";
 
     @Override
@@ -26,13 +21,13 @@ public class BakingAppListWidgetService extends RemoteViewsService {
         return new ListRemoteViewsFactory(this.getApplicationContext());
     }
 
-    public class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+    class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-        private Context mContext;
+        private final Context mContext;
         private Cursor mCursor;
-        private static final String TAG = "ListRemoteViewsFacory";
+        private static final String TAG = "ListRemoteViewsFactory";
 
-        public ListRemoteViewsFactory(Context context) {
+        ListRemoteViewsFactory(Context context) {
             mContext = context;
         }
 

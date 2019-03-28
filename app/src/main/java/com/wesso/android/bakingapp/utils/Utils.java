@@ -1,7 +1,5 @@
 package com.wesso.android.bakingapp.utils;
 
-import android.util.Log;
-
 import com.wesso.android.bakingapp.data.Ingredient;
 
 import java.util.List;

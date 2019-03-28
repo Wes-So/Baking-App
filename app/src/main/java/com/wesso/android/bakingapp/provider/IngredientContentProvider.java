@@ -4,24 +4,24 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.Objects;
 
 
 public class IngredientContentProvider extends ContentProvider {
-    public static final int INGREDIENTS = 100;
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
+//    private static final int INGREDIENTS = 100;
+//    private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-    public static UriMatcher buildUriMatcher() {
-        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(IngredientContract.AUTHORITY, IngredientContract.PATH_INGREDIENTSS, INGREDIENTS);
-        return uriMatcher;
-    }
+//    private static UriMatcher buildUriMatcher() {
+//        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+//        uriMatcher.addURI(IngredientContract.AUTHORITY, IngredientContract.PATH_INGREDIENTS, INGREDIENTS);
+//        return uriMatcher;
+//    }
 
     private IngredientDBHelper mIngredientDBHelper;
     @Override
@@ -45,7 +45,7 @@ public class IngredientContentProvider extends ContentProvider {
                 null,
                 sortOrder);
 
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        retCursor.setNotificationUri(Objects.requireNonNull(getContext()).getContentResolver(), uri);
         return retCursor;
     }
 
@@ -68,7 +68,7 @@ public class IngredientContentProvider extends ContentProvider {
             throw new android.database.SQLException("Failed to insert row into " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        Objects.requireNonNull(getContext()).getContentResolver().notifyChange(uri, null);
         return resultUri;
     }
 
@@ -79,7 +79,7 @@ public class IngredientContentProvider extends ContentProvider {
         int count = db.delete(IngredientContract.IngredientEntry.TABLE_NAME, "1", null);
 
         if (count != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            Objects.requireNonNull(getContext()).getContentResolver().notifyChange(uri, null);
         }
 
         return count;

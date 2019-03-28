@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class NetworkUtils {
+class NetworkUtils {
 
 
     private static URL buildURL(String data) {

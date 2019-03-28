@@ -1,6 +1,5 @@
 package com.wesso.android.bakingapp.data;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -8,8 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 

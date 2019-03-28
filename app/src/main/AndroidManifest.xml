@@ -47,6 +47,11 @@
         <service android:name=".widget.BakingAppListWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"></service>
 
+        <provider
+            android:name=".provider.IngredientContentProvider"
+            android:authorities="com.wesso.android.bakingapp"
+            android:exported="true" />
+
     </application>
 
 </manifest>
